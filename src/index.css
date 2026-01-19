@@ -1,6 +1,13 @@
 @import url('https://fonts.googleapis.com/css2?family=Tiro+Devanagari+Marathi:ital@0;1&display=swap');
 
 @tailwind base;
+
+/* Block horizontal scrolling */
+html, body {
+  overflow-x: hidden;
+  width: 100%;
+  max-width: 100vw;
+}
 @tailwind components;
 @tailwind utilities;
 
