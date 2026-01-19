@@ -3,7 +3,6 @@ import weddingBg from "@/assets/wedding-bg.jpg";
 import ganeshImage from "@/assets/ganesh.png";
 import dividerImage from "@/assets/divider.png";
 import shivaParvatiImage from "@/assets/shiva-parvati-temple.png";
-import templeDoorsImage from "@/assets/temple-doors.png";
 import { MapPin, Calendar, Clock, Heart, Camera, Images, Volume2, VolumeX } from "lucide-react";
 
 interface ScrollSection {
@@ -49,77 +48,101 @@ const TempleOpening = ({ onComplete }: { onComplete: () => void }) => {
 
   const handleOpen = () => {
     setDoorsOpen(true);
-    setTimeout(() => setShowContent(true), 1500);
-    setTimeout(() => onComplete(), 3000);
+    setTimeout(() => setShowContent(true), 2500);
+    setTimeout(() => onComplete(), 4500);
   };
 
   return (
-    <div className="fixed inset-0 w-screen h-screen bg-gradient-to-b from-maroon/95 via-maroon/80 to-black z-50 flex flex-col items-center justify-center overflow-hidden">
-      {/* Temple background with Shiva-Parvati */}
+    <div className="fixed inset-0 w-screen h-screen bg-gradient-to-b from-amber-900 via-amber-800 to-maroon z-50 flex flex-col items-center justify-center overflow-hidden">
+      {/* Temple background with Shiva-Parvati - Full image visible behind doors */}
       <div className="absolute inset-0 w-full h-full flex items-center justify-center">
-        <img
-          src={shivaParvatiImage} 
-          alt="Lord Shiva and Parvati" 
-          className={`w-full h-full object-cover transition-all duration-1500 ${doorsOpen ? 'scale-110 opacity-100' : 'scale-100 opacity-60'}`}
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/60" />
+        <div className="relative w-full h-full flex items-center justify-center p-4 md:p-8">
+          <img
+            src={shivaParvatiImage} 
+            alt="Lord Shiva and Parvati" 
+            className={`max-w-[90%] max-h-[90%] w-auto h-auto object-contain rounded-lg shadow-2xl transition-all duration-[3000ms] ease-out ${doorsOpen ? 'scale-100 opacity-100' : 'scale-95 opacity-80'}`}
+          />
+        </div>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-black/30 pointer-events-none" />
       </div>
 
-      {/* Temple Doors */}
-      <div className="relative w-full h-full flex items-center justify-center">
+      {/* Temple Doors with slow opening animation */}
+      <div className="absolute inset-0 w-full h-full flex" style={{ perspective: '2000px' }}>
         {/* Left Door */}
         <div 
-          className={`absolute left-0 w-1/2 h-full transition-transform duration-1500 ease-in-out origin-left ${doorsOpen ? '-translate-x-full' : 'translate-x-0'}`}
-          style={{ transformStyle: 'preserve-3d' }}
+          className="w-1/2 h-full origin-left transition-transform duration-[2500ms] ease-[cubic-bezier(0.4,0,0.2,1)]"
+          style={{ 
+            transformStyle: 'preserve-3d',
+            transform: doorsOpen ? 'rotateY(-110deg)' : 'rotateY(0deg)',
+            background: 'linear-gradient(135deg, #5D3A1A 0%, #3D2510 50%, #2A1A0A 100%)',
+            boxShadow: 'inset 0 0 100px rgba(0,0,0,0.5)'
+          }}
         >
-          <div 
-            className="w-full h-full bg-cover bg-left"
-            style={{ 
-              backgroundImage: `url(${templeDoorsImage})`,
-              clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 100%)'
-            }}
-          />
+          {/* Door decorations */}
+          <div className="w-full h-full flex items-center justify-center relative">
+            <div className="absolute inset-4 border-4 border-gold/40 rounded-lg" />
+            <div className="absolute inset-8 border-2 border-gold/30 rounded" />
+            <div className="text-gold/50 text-8xl md:text-9xl font-serif">卐</div>
+            <div className="absolute top-8 left-1/2 -translate-x-1/2 w-16 h-16 rounded-full border-4 border-gold/40 flex items-center justify-center">
+              <div className="w-8 h-8 rounded-full bg-gold/30" />
+            </div>
+          </div>
         </div>
         
         {/* Right Door */}
         <div 
-          className={`absolute right-0 w-1/2 h-full transition-transform duration-1500 ease-in-out origin-right ${doorsOpen ? 'translate-x-full' : 'translate-x-0'}`}
-          style={{ transformStyle: 'preserve-3d' }}
+          className="w-1/2 h-full origin-right transition-transform duration-[2500ms] ease-[cubic-bezier(0.4,0,0.2,1)]"
+          style={{ 
+            transformStyle: 'preserve-3d',
+            transform: doorsOpen ? 'rotateY(110deg)' : 'rotateY(0deg)',
+            background: 'linear-gradient(225deg, #5D3A1A 0%, #3D2510 50%, #2A1A0A 100%)',
+            boxShadow: 'inset 0 0 100px rgba(0,0,0,0.5)'
+          }}
         >
-          <div 
-            className="w-full h-full bg-cover bg-right"
-            style={{ 
-              backgroundImage: `url(${templeDoorsImage})`,
-              clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 100%)'
-            }}
-          />
+          {/* Door decorations */}
+          <div className="w-full h-full flex items-center justify-center relative">
+            <div className="absolute inset-4 border-4 border-gold/40 rounded-lg" />
+            <div className="absolute inset-8 border-2 border-gold/30 rounded" />
+            <div className="text-gold/50 text-8xl md:text-9xl font-serif">卐</div>
+            <div className="absolute top-8 left-1/2 -translate-x-1/2 w-16 h-16 rounded-full border-4 border-gold/40 flex items-center justify-center">
+              <div className="w-8 h-8 rounded-full bg-gold/30" />
+            </div>
+          </div>
         </div>
-
-        {/* Tap instruction - shown before doors open */}
-        {!doorsOpen && (
-          <div 
-            className="absolute inset-0 flex flex-col items-center justify-center z-20 cursor-pointer"
-            onClick={handleOpen}
-          >
-            <div className="bg-black/40 backdrop-blur-sm rounded-2xl px-6 py-4 text-center space-y-3 animate-pulse">
-              <p className="text-gold text-xl md:text-2xl font-semibold">🙏 मंदिराचे द्वार उघडा 🙏</p>
-              <p className="text-cream/70 text-sm md:text-base">टॅप करा</p>
-            </div>
-          </div>
-        )}
-
-        {/* Revealed content after doors open */}
-        {showContent && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center z-30 animate-fade-in">
-            <div className="text-center space-y-4 bg-black/50 backdrop-blur-md rounded-3xl p-8 mx-4">
-              <p className="text-3xl md:text-5xl text-gold font-bold animate-glow">
-                ॥ श्री गणेशाय नमः ॥
-              </p>
-              <p className="text-cream/90 text-lg md:text-xl">शुभ विवाह निमंत्रण</p>
-            </div>
-          </div>
-        )}
       </div>
+
+      {/* Tap instruction - shown before doors open */}
+      {!doorsOpen && (
+        <div 
+          className="absolute inset-0 flex flex-col items-center justify-center z-20 cursor-pointer"
+          onClick={handleOpen}
+        >
+          <div className="bg-black/50 backdrop-blur-sm rounded-3xl px-8 py-6 text-center space-y-4 border border-gold/30 shadow-2xl">
+            <div className="animate-bounce-subtle">
+              <p className="text-gold text-2xl md:text-3xl font-semibold">🙏 मंदिराचे द्वार उघडा 🙏</p>
+            </div>
+            <p className="text-cream/80 text-base md:text-lg">टॅप करा</p>
+            <div className="flex justify-center gap-2">
+              <span className="w-2 h-2 bg-gold/60 rounded-full animate-pulse" />
+              <span className="w-2 h-2 bg-gold/60 rounded-full animate-pulse" style={{ animationDelay: '0.2s' }} />
+              <span className="w-2 h-2 bg-gold/60 rounded-full animate-pulse" style={{ animationDelay: '0.4s' }} />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Revealed content after doors open */}
+      {showContent && (
+        <div className="absolute inset-0 flex flex-col items-center justify-center z-30">
+          <div className="text-center space-y-6 bg-black/60 backdrop-blur-md rounded-3xl p-10 mx-4 border border-gold/40 animate-scale-in">
+            <p className="text-4xl md:text-6xl text-gold font-bold animate-glow">
+              ॥ श्री गणेशाय नमः ॥
+            </p>
+            <div className="w-32 h-0.5 bg-gradient-to-r from-transparent via-gold to-transparent mx-auto" />
+            <p className="text-cream text-xl md:text-2xl">शुभ विवाह निमंत्रण</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
@@ -155,22 +178,48 @@ const eventsTimeline: EventItem[] = [
   }
 ];
 
-// Single Event Card with Image
+// Single Event Card with Image and Animation
 const EventCard = ({ event, index }: { event: EventItem; index: number }) => {
-  const isLeft = index % 2 === 0;
-  
+  const [isVisible, setIsVisible] = useState(false);
+  const cardRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+        }
+      },
+      { threshold: 0.3 }
+    );
+
+    if (cardRef.current) {
+      observer.observe(cardRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
+
   return (
-    <div className={`flex flex-col items-center gap-4 w-full max-w-sm mx-auto`}>
-      {/* Event Image Placeholder */}
-      <div className={`w-full aspect-[4/3] bg-gradient-to-br from-gold/20 to-maroon/20 rounded-2xl flex flex-col items-center justify-center gap-2 border-2 border-dashed ${event.borderColor}/50`}>
-        <Camera className="w-12 h-12 text-gold/50" />
-        <span className="text-sm text-gold/60">{event.imagePlaceholder}</span>
+    <div 
+      ref={cardRef}
+      className={`flex flex-col items-center gap-4 w-full max-w-sm mx-auto transition-all duration-700 ${
+        isVisible 
+          ? 'opacity-100 translate-y-0' 
+          : 'opacity-0 translate-y-10'
+      }`}
+      style={{ transitionDelay: `${index * 150}ms` }}
+    >
+      {/* Event Image Placeholder with hover animation */}
+      <div className={`w-full aspect-[4/3] bg-gradient-to-br from-gold/20 to-maroon/20 rounded-2xl flex flex-col items-center justify-center gap-2 border-2 border-dashed ${event.borderColor}/50 group hover:scale-105 transition-transform duration-300 cursor-pointer`}>
+        <Camera className="w-12 h-12 text-gold/50 group-hover:text-gold transition-colors duration-300 group-hover:scale-110" />
+        <span className="text-sm text-gold/60 group-hover:text-gold transition-colors duration-300">{event.imagePlaceholder}</span>
       </div>
       
-      {/* Event Details Card */}
-      <div className={`${event.borderColor} border-2 rounded-2xl bg-cream/95 shadow-lg p-4 w-full`}>
+      {/* Event Details Card with bounce animation */}
+      <div className={`${event.borderColor} border-2 rounded-2xl bg-cream/95 shadow-lg p-4 w-full hover:shadow-xl transition-all duration-300 hover:-translate-y-1`}>
         <div className="flex items-center gap-2 mb-2">
-          <span className="text-2xl">{event.icon}</span>
+          <span className="text-2xl animate-bounce-subtle">{event.icon}</span>
           <h4 className="text-lg md:text-xl font-bold text-maroon">{event.title}</h4>
         </div>
         <div className="space-y-1">
@@ -262,11 +311,12 @@ const BackgroundMusic = () => {
 
   return (
     <>
+      {/* Using a royalty-free Indian classical music - sitar melody */}
       <audio
         ref={audioRef}
         loop
         preload="auto"
-        src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"
+        src="https://cdn.pixabay.com/audio/2022/10/25/audio_32de2f87fd.mp3"
       />
       <button
         onClick={toggleMusic}
