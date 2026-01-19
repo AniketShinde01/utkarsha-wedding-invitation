@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import weddingBg from "@/assets/wedding-bg.jpg";
 import ganeshImage from "@/assets/ganesh.png";
-import diyaImage from "@/assets/diya.png";
 import dividerImage from "@/assets/divider.png";
-import { MapPin, Calendar, Clock, Heart, Camera, Images } from "lucide-react";
+import shivaParvatiImage from "@/assets/shiva-parvati-temple.png";
+import templeDoorsImage from "@/assets/temple-doors.png";
+import { MapPin, Calendar, Clock, Heart, Camera, Images, Volume2, VolumeX } from "lucide-react";
 
 interface ScrollSection {
   id: string;
@@ -17,13 +18,14 @@ interface EventItem {
   date: string;
   time: string;
   icon: string;
-  color: string;
+  borderColor: string;
+  imagePlaceholder: string;
 }
 
 // Floating particles component
 const FloatingParticles = () => {
   return (
-    <div className="fixed inset-0 pointer-events-none overflow-hidden z-20">
+    <div className="fixed inset-0 pointer-events-none z-20">
       {[...Array(15)].map((_, i) => (
         <div
           key={i}
@@ -40,55 +42,81 @@ const FloatingParticles = () => {
   );
 };
 
-// Opening Diya Animation
-const DiyaOpening = ({ onComplete }: { onComplete: () => void }) => {
-  const [isLit, setIsLit] = useState(false);
-  const [showText, setShowText] = useState(false);
+// Temple Door Opening Animation with Shiva-Parvati
+const TempleOpening = ({ onComplete }: { onComplete: () => void }) => {
+  const [doorsOpen, setDoorsOpen] = useState(false);
+  const [showContent, setShowContent] = useState(false);
 
-  const handleLight = () => {
-    setIsLit(true);
-    setTimeout(() => setShowText(true), 800);
-    setTimeout(() => onComplete(), 2500);
+  const handleOpen = () => {
+    setDoorsOpen(true);
+    setTimeout(() => setShowContent(true), 1500);
+    setTimeout(() => onComplete(), 3000);
   };
 
   return (
-    <div className="fixed inset-0 bg-gradient-to-b from-maroon/95 to-black z-50 flex flex-col items-center justify-center px-4">
-      <div className="text-center space-y-6 md:space-y-8">
-        {!isLit && (
-          <p className="text-gold text-lg md:text-xl animate-pulse">दिवा प्रज्वलित करा</p>
-        )}
-        
+    <div className="fixed inset-0 w-screen h-screen bg-gradient-to-b from-maroon/95 via-maroon/80 to-black z-50 flex flex-col items-center justify-center overflow-hidden">
+      {/* Temple background with Shiva-Parvati */}
+      <div className="absolute inset-0 w-full h-full flex items-center justify-center">
+        <img
+          src={shivaParvatiImage} 
+          alt="Lord Shiva and Parvati" 
+          className={`w-full h-full object-cover transition-all duration-1500 ${doorsOpen ? 'scale-110 opacity-100' : 'scale-100 opacity-60'}`}
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/60" />
+      </div>
+
+      {/* Temple Doors */}
+      <div className="relative w-full h-full flex items-center justify-center">
+        {/* Left Door */}
         <div 
-          className={`relative cursor-pointer transition-all duration-1000 ${isLit ? 'scale-110' : 'hover:scale-105'}`}
-          onClick={handleLight}
+          className={`absolute left-0 w-1/2 h-full transition-transform duration-1500 ease-in-out origin-left ${doorsOpen ? '-translate-x-full' : 'translate-x-0'}`}
+          style={{ transformStyle: 'preserve-3d' }}
         >
-          <img 
-            src={diyaImage} 
-            alt="Diya" 
-            className="w-28 h-28 md:w-40 md:h-40 mx-auto object-contain"
+          <div 
+            className="w-full h-full bg-cover bg-left"
+            style={{ 
+              backgroundImage: `url(${templeDoorsImage})`,
+              clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 100%)'
+            }}
           />
-          {isLit && (
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-6 h-10 md:w-8 md:h-12 bg-gradient-to-t from-orange-500 via-yellow-400 to-yellow-200 rounded-full blur-sm animate-pulse" 
-                   style={{ marginTop: '-30px' }} 
-              />
-            </div>
-          )}
-          {isLit && (
-            <div className="absolute inset-0 bg-gold/20 rounded-full animate-ping" />
-          )}
+        </div>
+        
+        {/* Right Door */}
+        <div 
+          className={`absolute right-0 w-1/2 h-full transition-transform duration-1500 ease-in-out origin-right ${doorsOpen ? 'translate-x-full' : 'translate-x-0'}`}
+          style={{ transformStyle: 'preserve-3d' }}
+        >
+          <div 
+            className="w-full h-full bg-cover bg-right"
+            style={{ 
+              backgroundImage: `url(${templeDoorsImage})`,
+              clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 100%)'
+            }}
+          />
         </div>
 
-        {!isLit && (
-          <p className="text-cream/60 text-xs md:text-sm">टॅप करा</p>
+        {/* Tap instruction - shown before doors open */}
+        {!doorsOpen && (
+          <div 
+            className="absolute inset-0 flex flex-col items-center justify-center z-20 cursor-pointer"
+            onClick={handleOpen}
+          >
+            <div className="bg-black/40 backdrop-blur-sm rounded-2xl px-6 py-4 text-center space-y-3 animate-pulse">
+              <p className="text-gold text-xl md:text-2xl font-semibold">🙏 मंदिराचे द्वार उघडा 🙏</p>
+              <p className="text-cream/70 text-sm md:text-base">टॅप करा</p>
+            </div>
+          </div>
         )}
 
-        {showText && (
-          <div className="animate-fade-in-up space-y-3 md:space-y-4">
-            <p className="text-2xl md:text-4xl text-gold font-semibold">
-              ॥ श्री गणेशाय नमः ॥
-            </p>
-            <p className="text-cream/80 text-base md:text-lg">शुभ विवाह निमंत्रण</p>
+        {/* Revealed content after doors open */}
+        {showContent && (
+          <div className="absolute inset-0 flex flex-col items-center justify-center z-30 animate-fade-in">
+            <div className="text-center space-y-4 bg-black/50 backdrop-blur-md rounded-3xl p-8 mx-4">
+              <p className="text-3xl md:text-5xl text-gold font-bold animate-glow">
+                ॥ श्री गणेशाय नमः ॥
+              </p>
+              <p className="text-cream/90 text-lg md:text-xl">शुभ विवाह निमंत्रण</p>
+            </div>
           </div>
         )}
       </div>
@@ -104,7 +132,8 @@ const eventsTimeline: EventItem[] = [
     date: "०५/०२/२०२६",
     time: "सायं. ६ वा.",
     icon: "🌿",
-    color: "from-green-600 to-green-400"
+    borderColor: "border-green-500",
+    imagePlaceholder: "मेहंदी फोटो"
   },
   {
     id: "haldi",
@@ -112,7 +141,8 @@ const eventsTimeline: EventItem[] = [
     date: "०६/०२/२०२६",
     time: "सायं. ६ वा. २१ मि.",
     icon: "🌼",
-    color: "from-saffron to-yellow-400"
+    borderColor: "border-saffron",
+    imagePlaceholder: "हळदी फोटो"
   },
   {
     id: "wedding",
@@ -120,9 +150,43 @@ const eventsTimeline: EventItem[] = [
     date: "०७/०२/२०२६",
     time: "सायं. ६ वा. २७ मि.",
     icon: "💍",
-    color: "from-maroon to-gold"
+    borderColor: "border-maroon",
+    imagePlaceholder: "विवाह फोटो"
   }
 ];
+
+// Single Event Card with Image
+const EventCard = ({ event, index }: { event: EventItem; index: number }) => {
+  const isLeft = index % 2 === 0;
+  
+  return (
+    <div className={`flex flex-col items-center gap-4 w-full max-w-sm mx-auto`}>
+      {/* Event Image Placeholder */}
+      <div className={`w-full aspect-[4/3] bg-gradient-to-br from-gold/20 to-maroon/20 rounded-2xl flex flex-col items-center justify-center gap-2 border-2 border-dashed ${event.borderColor}/50`}>
+        <Camera className="w-12 h-12 text-gold/50" />
+        <span className="text-sm text-gold/60">{event.imagePlaceholder}</span>
+      </div>
+      
+      {/* Event Details Card */}
+      <div className={`${event.borderColor} border-2 rounded-2xl bg-cream/95 shadow-lg p-4 w-full`}>
+        <div className="flex items-center gap-2 mb-2">
+          <span className="text-2xl">{event.icon}</span>
+          <h4 className="text-lg md:text-xl font-bold text-maroon">{event.title}</h4>
+        </div>
+        <div className="space-y-1">
+          <div className="flex items-center gap-2">
+            <Calendar className="w-4 h-4 text-gold" />
+            <span className="text-gold font-semibold">{event.date}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Clock className="w-4 h-4 text-maroon" />
+            <span className="text-maroon">{event.time}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 // Our Moments Gallery Placeholder
 const OurMomentsGallery = () => {
@@ -161,6 +225,61 @@ const OurMomentsGallery = () => {
         * कार्यक्रमानंतर फोटो जोडले जातील
       </p>
     </div>
+  );
+};
+
+// Background Music Component
+const BackgroundMusic = () => {
+  const [isPlaying, setIsPlaying] = useState(false);
+  const audioRef = useRef<HTMLAudioElement>(null);
+  
+  const toggleMusic = () => {
+    if (audioRef.current) {
+      if (isPlaying) {
+        audioRef.current.pause();
+      } else {
+        audioRef.current.play().catch(() => {
+          // Auto-play might be blocked
+        });
+      }
+      setIsPlaying(!isPlaying);
+    }
+  };
+
+  useEffect(() => {
+    // Try to auto-play when component mounts
+    const timer = setTimeout(() => {
+      if (audioRef.current) {
+        audioRef.current.play().then(() => {
+          setIsPlaying(true);
+        }).catch(() => {
+          // Auto-play blocked, user needs to click
+        });
+      }
+    }, 500);
+    return () => clearTimeout(timer);
+  }, []);
+
+  return (
+    <>
+      <audio
+        ref={audioRef}
+        loop
+        preload="auto"
+        src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"
+      />
+      <button
+        onClick={toggleMusic}
+        className="fixed top-4 left-4 z-50 bg-cream/90 backdrop-blur-sm p-3 rounded-full shadow-lg border-2 border-gold/50 hover:scale-110 transition-transform"
+        aria-label={isPlaying ? "Mute music" : "Play music"}
+      >
+        {isPlaying ? (
+          <Volume2 className="w-5 h-5 md:w-6 md:h-6 text-maroon" />
+        ) : (
+          <VolumeX className="w-5 h-5 md:w-6 md:h-6 text-maroon" />
+        )}
+      </button>
+    </>
   );
 };
 
@@ -257,56 +376,34 @@ const Index = () => {
         </div>
       ),
     },
+    // Individual event sections - Mehandi
     {
-      id: "events-timeline",
+      id: "event-mehandi",
       revealStyle: "fade",
       content: (
-        <div className="text-center space-y-6 md:space-y-8 w-full">
-          <h3 className="text-2xl md:text-3xl text-gold font-bold">शुभ कार्यक्रम</h3>
-          <div className="relative">
-            {/* Vertical Timeline Line */}
-            <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-gradient-to-b from-gold via-maroon to-gold -translate-x-1/2 hidden md:block" />
-            
-            <div className="space-y-4 md:space-y-6">
-              {eventsTimeline.map((event, index) => (
-                <div 
-                  key={event.id}
-                  className={`relative flex items-center ${index % 2 === 0 ? 'md:flex-row' : 'md:flex-row-reverse'} flex-col md:gap-8`}
-                >
-                  {/* Event Card */}
-                  <div className={`flex-1 ${index % 2 === 0 ? 'md:text-right' : 'md:text-left'}`}>
-                    <div className={`inline-block bg-gradient-to-r ${event.color} p-0.5 rounded-2xl`}>
-                      <div className="bg-cream rounded-2xl px-4 md:px-6 py-3 md:py-4">
-                        <div className="flex items-center gap-2 justify-center md:justify-start">
-                          <span className="text-2xl md:text-3xl">{event.icon}</span>
-                          <h4 className="text-lg md:text-xl font-bold text-maroon">{event.title}</h4>
-                        </div>
-                        <div className="mt-2 space-y-1 text-sm md:text-base">
-                          <div className="flex items-center gap-2 justify-center md:justify-start">
-                            <Calendar className="w-4 h-4 text-gold" />
-                            <span className="text-gold font-semibold">{event.date}</span>
-                          </div>
-                          <div className="flex items-center gap-2 justify-center md:justify-start">
-                            <Clock className="w-4 h-4 text-maroon" />
-                            <span className="text-maroon">{event.time}</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {/* Timeline Dot */}
-                  <div className="relative z-10 w-4 h-4 md:w-5 md:h-5 bg-gold rounded-full border-4 border-cream shadow-lg my-2 md:my-0" />
-                  
-                  {/* Spacer for alignment */}
-                  <div className="flex-1 hidden md:block" />
-                </div>
-              ))}
-            </div>
-          </div>
-          
+        <div className="text-center space-y-4">
+          <h3 className="text-2xl md:text-3xl text-gold font-bold mb-6">शुभ कार्यक्रम</h3>
+          <EventCard event={eventsTimeline[0]} index={0} />
+        </div>
+      ),
+    },
+    // Individual event sections - Haldi
+    {
+      id: "event-haldi",
+      revealStyle: "fade",
+      content: (
+        <EventCard event={eventsTimeline[1]} index={1} />
+      ),
+    },
+    // Individual event sections - Wedding
+    {
+      id: "event-wedding",
+      revealStyle: "fade",
+      content: (
+        <div className="space-y-6">
+          <EventCard event={eventsTimeline[2]} index={2} />
           <div className="bg-gradient-to-r from-transparent via-gold/20 to-transparent p-4 md:p-6 rounded-xl mt-4">
-            <p className="text-sm md:text-lg leading-relaxed max-w-xl mx-auto text-muted-foreground italic">
+            <p className="text-sm md:text-base leading-relaxed max-w-xl mx-auto text-muted-foreground italic text-center">
               तरी या मंगल प्रसंगी आपण सहकुटुंब, सहपरिवार व मित्रमंडळी सह उपस्थित
               राहून शुभाशीर्वाद द्यावेत हि नम्र विनंती.
             </p>
@@ -439,13 +536,13 @@ const Index = () => {
   }, [showInvitation]);
 
   if (!showInvitation) {
-    return <DiyaOpening onComplete={() => setShowInvitation(true)} />;
+    return <TempleOpening onComplete={() => setShowInvitation(true)} />;
   }
 
   return (
     <div
       ref={containerRef}
-      className="min-h-screen relative"
+      className="min-h-screen relative overflow-x-hidden"
       style={{
         backgroundImage: `url(${weddingBg})`,
         backgroundSize: "cover",
@@ -454,6 +551,9 @@ const Index = () => {
         backgroundAttachment: "fixed",
       }}
     >
+      {/* Background Music */}
+      <BackgroundMusic />
+
       {/* Floating particles */}
       <FloatingParticles />
 
