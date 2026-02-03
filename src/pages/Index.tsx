@@ -2,8 +2,36 @@ import { useEffect, useRef, useState } from "react";
 import weddingBg from "@/assets/wedding-bg.jpg";
 import ganeshImage from "@/assets/ganesh.png";
 import dividerImage from "@/assets/divider.png";
-import shivaParvatiImage from "@/assets/shiva-parvati-temple.png";
-import { MapPin, Calendar, Clock, Heart, Camera, Images, Volume2, VolumeX } from "lucide-react";
+import templeDoors from "@/assets/temple-doors.png"; // NEW: door image
+import shivaParvatiImage from "@/assets/shiva-parvati-temple.jpeg";
+import bellImage from "@/assets/bell-removebg-preview.png"; // NEW: bell image trigger
+import bellSound from "@/assets/bell-sound.mp3"; 
+import doorOpenSound from "@/assets/open-door-sound.mp3";
+import backgroundSound from "@/assets/sarvopari_pari_premi.mp3";
+import mehendiCeremony from "@/assets/mehendi-ceremony.jpg";
+import haldiCeremony from "@/assets/haldi-ceremony.jpg";
+import weddingCeremony from "@/assets/wedding-ceremony.jpg";
+import Pic1 from "@/assets/engagement8.jpg";
+import Pic2 from "@/assets/engagement7.jpg";
+import Pic3 from "@/assets/engagement6.jpg";
+import Pic4 from "@/assets/engagement5.jpg";
+import Pic5 from "@/assets/engagement4.jpg";
+import Pic6 from "@/assets/engagement3.jpg";
+import Pic7 from "@/assets/engagement2.jpg";
+import Pic8 from "@/assets/engagement1.jpg";
+
+
+
+import {
+  MapPin,
+  Calendar,
+  Clock,
+  Heart,
+  Camera,
+  Images,
+  Volume2,
+  VolumeX,
+} from "lucide-react";
 
 interface ScrollSection {
   id: string;
@@ -19,6 +47,7 @@ interface EventItem {
   icon: string;
   borderColor: string;
   imagePlaceholder: string;
+  imageStr: string;
 }
 
 // Floating particles component
@@ -45,107 +74,184 @@ const FloatingParticles = () => {
 const TempleOpening = ({ onComplete }: { onComplete: () => void }) => {
   const [doorsOpen, setDoorsOpen] = useState(false);
   const [showContent, setShowContent] = useState(false);
+  const [bellRinging, setBellRinging] = useState(false);
 
-  const handleOpen = () => {
-    setDoorsOpen(true);
-    setTimeout(() => setShowContent(true), 2500);
-    setTimeout(() => onComplete(), 4500);
+  const bellAudioRef = useRef<HTMLAudioElement>(null);
+  const doorAudioRef = useRef<HTMLAudioElement>(null);
+
+  const DOOR_OPEN_DURATION_MS = 8000;
+
+  const handleOpen = async () => {
+    setBellRinging(true);
+
+    // ✅ Play Bell Sound
+    if (bellAudioRef.current) {
+      bellAudioRef.current.currentTime = 0;
+      bellAudioRef.current.play().catch(() => {});
+    }
+
+    // Stop bell shake + start door opening
+    setTimeout(() => {
+      setBellRinging(false);
+      setDoorsOpen(true);
+
+      // ✅ Play Door creak sound
+      if (doorAudioRef.current) {
+        doorAudioRef.current.currentTime = 0;
+        doorAudioRef.current.play().catch(() => {});
+      }
+    }, 800);
+
+    // Reveal content after door opens partially
+    setTimeout(() => {
+      setShowContent(true);
+    }, 2000);
   };
 
+  useEffect(() => {
+    if (showContent) {
+      const timer = setTimeout(() => {
+        onComplete();
+      }, 2500);
+      return () => clearTimeout(timer);
+    }
+  }, [showContent, onComplete]);
+
   return (
-    <div className="fixed inset-0 w-screen h-screen bg-gradient-to-b from-amber-900 via-amber-800 to-maroon z-50 flex flex-col items-center justify-center overflow-hidden">
-      {/* Temple background with Shiva-Parvati - Full image visible behind doors */}
-      <div className="absolute inset-0 w-full h-full flex items-center justify-center">
-        <div className="relative w-full h-full flex items-center justify-center p-4 md:p-8">
-          <img
-            src={shivaParvatiImage} 
-            alt="Lord Shiva and Parvati" 
-            className={`max-w-[90%] max-h-[90%] w-auto h-auto object-contain rounded-lg shadow-2xl transition-all duration-[3000ms] ease-out ${doorsOpen ? 'scale-100 opacity-100' : 'scale-95 opacity-80'}`}
-          />
-        </div>
-        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-black/30 pointer-events-none" />
+    <div className="fixed inset-0 w-screen h-screen bg-gradient-to-b from-amber-900 via-amber-800 to-maroon z-50 flex items-center justify-center overflow-hidden">
+      {/* ✅ Sounds */}
+      <audio ref={bellAudioRef} preload="auto" src={bellSound} />
+      <audio ref={doorAudioRef} preload="auto" src={doorOpenSound} />
+
+      {/* Temple Background */}
+      <div className="absolute inset-0 w-full h-full">
+        <div
+          className="absolute inset-0"
+          style={{
+            backgroundImage: `url(${weddingBg})`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+          }}
+        />
+
+        {/* Shiva-Parvati reveal */}
+        <img
+          src={shivaParvatiImage}
+          alt="Lord Shiva and Parvati"
+          className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 max-w-[90%] max-h-[90%] w-auto h-auto object-contain rounded-lg shadow-2xl transition-all duration-[2500ms] ease-out
+          ${showContent ? "scale-100 opacity-100 blur-0" : "scale-90 opacity-0 blur-md"}`}
+        />
+
+        {/* Light Beam */}
+        <div
+          className={`absolute inset-0 transition-all duration-[3000ms] ease-out ${
+            doorsOpen ? "opacity-100" : "opacity-0"
+          }`}
+          style={{
+            background:
+              "radial-gradient(circle at center, rgba(255,215,0,0.35), rgba(0,0,0,0.85))",
+          }}
+        />
       </div>
 
-      {/* Temple Doors with slow opening animation */}
-      <div className="absolute inset-0 w-full h-full flex" style={{ perspective: '2000px' }}>
+      {/* Doors */}
+      <div
+        className="absolute inset-0 w-full h-full flex"
+        style={{ perspective: "2500px" }}
+      >
+        {/* seam */}
+        <div
+          className={`absolute left-1/2 top-0 -translate-x-1/2 h-full w-[2px] bg-black/40 z-20 transition-opacity duration-700 ${
+            doorsOpen ? "opacity-0" : "opacity-100"
+          }`}
+        />
+
         {/* Left Door */}
-        <div 
-          className="w-1/2 h-full origin-left transition-transform duration-[2500ms] ease-[cubic-bezier(0.4,0,0.2,1)]"
-          style={{ 
-            transformStyle: 'preserve-3d',
-            transform: doorsOpen ? 'rotateY(-110deg)' : 'rotateY(0deg)',
-            background: 'linear-gradient(135deg, #5D3A1A 0%, #3D2510 50%, #2A1A0A 100%)',
-            boxShadow: 'inset 0 0 100px rgba(0,0,0,0.5)'
+        <div
+          className="w-1/2 h-full origin-left will-change-transform"
+          style={{
+            transformStyle: "preserve-3d",
+            backfaceVisibility: "hidden",
+            transition: `transform ${DOOR_OPEN_DURATION_MS}ms cubic-bezier(0.22, 1, 0.36, 1)`,
+            transform: doorsOpen ? "rotateY(-120deg)" : "rotateY(0deg)",
+            backgroundImage: `url(${templeDoors})`,
+            backgroundRepeat: "no-repeat",
+            backgroundSize: "200% 100%",
+            backgroundPosition: "left center",
+            boxShadow: doorsOpen
+              ? "inset 0 0 50px rgba(0,0,0,0.8)"
+              : "inset 0 0 120px rgba(0,0,0,0.65)",
           }}
-        >
-          {/* Door decorations */}
-          <div className="w-full h-full flex items-center justify-center relative">
-            <div className="absolute inset-4 border-4 border-gold/40 rounded-lg" />
-            <div className="absolute inset-8 border-2 border-gold/30 rounded" />
-            <div className="text-gold/50 text-8xl md:text-9xl font-serif">卐</div>
-            <div className="absolute top-8 left-1/2 -translate-x-1/2 w-16 h-16 rounded-full border-4 border-gold/40 flex items-center justify-center">
-              <div className="w-8 h-8 rounded-full bg-gold/30" />
-            </div>
-          </div>
-        </div>
-        
+        />
+
         {/* Right Door */}
-        <div 
-          className="w-1/2 h-full origin-right transition-transform duration-[2500ms] ease-[cubic-bezier(0.4,0,0.2,1)]"
-          style={{ 
-            transformStyle: 'preserve-3d',
-            transform: doorsOpen ? 'rotateY(110deg)' : 'rotateY(0deg)',
-            background: 'linear-gradient(225deg, #5D3A1A 0%, #3D2510 50%, #2A1A0A 100%)',
-            boxShadow: 'inset 0 0 100px rgba(0,0,0,0.5)'
+        <div
+          className="w-1/2 h-full origin-right will-change-transform"
+          style={{
+            transformStyle: "preserve-3d",
+            backfaceVisibility: "hidden",
+            transition: `transform ${DOOR_OPEN_DURATION_MS}ms cubic-bezier(0.22, 1, 0.36, 1)`,
+            transform: doorsOpen ? "rotateY(120deg)" : "rotateY(0deg)",
+            backgroundImage: `url(${templeDoors})`,
+            backgroundRepeat: "no-repeat",
+            backgroundSize: "200% 100%",
+            backgroundPosition: "right center",
+            boxShadow: doorsOpen
+              ? "inset 0 0 50px rgba(0,0,0,0.8)"
+              : "inset 0 0 120px rgba(0,0,0,0.65)",
           }}
-        >
-          {/* Door decorations */}
-          <div className="w-full h-full flex items-center justify-center relative">
-            <div className="absolute inset-4 border-4 border-gold/40 rounded-lg" />
-            <div className="absolute inset-8 border-2 border-gold/30 rounded" />
-            <div className="text-gold/50 text-8xl md:text-9xl font-serif">卐</div>
-            <div className="absolute top-8 left-1/2 -translate-x-1/2 w-16 h-16 rounded-full border-4 border-gold/40 flex items-center justify-center">
-              <div className="w-8 h-8 rounded-full bg-gold/30" />
-            </div>
-          </div>
-        </div>
+        />
       </div>
 
-      {/* Tap instruction - shown before doors open */}
+      {/* Bell Trigger */}
       {!doorsOpen && (
-        <div 
-          className="absolute inset-0 flex flex-col items-center justify-center z-20 cursor-pointer"
+        <button
           onClick={handleOpen}
+          className="absolute top-8 md:top-10 left-1/2 -translate-x-1/2 z-40 focus:outline-none"
+          aria-label="Open the doors"
         >
-          <div className="bg-black/50 backdrop-blur-sm rounded-3xl px-8 py-6 text-center space-y-4 border border-gold/30 shadow-2xl">
-            <div className="animate-bounce-subtle">
-              <p className="text-gold text-2xl md:text-3xl font-semibold">🙏 मंदिराचे द्वार उघडा 🙏</p>
-            </div>
-            <p className="text-cream/80 text-base md:text-lg">टॅप करा</p>
-            <div className="flex justify-center gap-2">
-              <span className="w-2 h-2 bg-gold/60 rounded-full animate-pulse" />
-              <span className="w-2 h-2 bg-gold/60 rounded-full animate-pulse" style={{ animationDelay: '0.2s' }} />
-              <span className="w-2 h-2 bg-gold/60 rounded-full animate-pulse" style={{ animationDelay: '0.4s' }} />
-            </div>
-          </div>
-        </div>
+          <img
+            src={bellImage}
+            alt="Bell"
+            className={`h-20 md:h-24 drop-shadow-xl transition-transform duration-300
+            ${
+              bellRinging
+                ? "animate-[shake_0.3s_infinite]"
+                : "animate-bounce-subtle hover:scale-110"
+            }`}
+          />
+        </button>
       )}
 
-      {/* Revealed content after doors open */}
+      {/* Text */}
       {showContent && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center z-30">
+        <div className="absolute inset-0 flex flex-col items-center justify-center z-40">
           <div className="text-center space-y-6 bg-black/60 backdrop-blur-md rounded-3xl p-10 mx-4 border border-gold/40 animate-scale-in">
             <p className="text-4xl md:text-6xl text-gold font-bold animate-glow">
-              ॥ श्री गणेशाय नमः ॥
+              ॥ ॐ नमः शिवाय ॥
             </p>
             <div className="w-32 h-0.5 bg-gradient-to-r from-transparent via-gold to-transparent mx-auto" />
             <p className="text-cream text-xl md:text-2xl">शुभ विवाह निमंत्रण</p>
           </div>
         </div>
       )}
+
+      {/* Shake keyframes */}
+      <style>
+        {`
+          @keyframes shake {
+            0% { transform: translateX(0) rotate(0deg); }
+            25% { transform: translateX(-3px) rotate(-3deg); }
+            50% { transform: translateX(3px) rotate(3deg); }
+            75% { transform: translateX(-3px) rotate(-3deg); }
+            100% { transform: translateX(0) rotate(0deg); }
+          }
+        `}
+      </style>
     </div>
   );
 };
+
 
 // Events Timeline data - chronological order
 const eventsTimeline: EventItem[] = [
@@ -156,7 +262,9 @@ const eventsTimeline: EventItem[] = [
     time: "सायं. ६ वा.",
     icon: "🌿",
     borderColor: "border-green-500",
-    imagePlaceholder: "मेहंदी फोटो"
+    imagePlaceholder: "मेहंदी फोटो",
+    imageStr: mehendiCeremony,
+
   },
   {
     id: "haldi",
@@ -165,7 +273,8 @@ const eventsTimeline: EventItem[] = [
     time: "सायं. ६ वा. २१ मि.",
     icon: "🌼",
     borderColor: "border-saffron",
-    imagePlaceholder: "हळदी फोटो"
+    imagePlaceholder: "हळदी फोटो",
+    imageStr: haldiCeremony,
   },
   {
     id: "wedding",
@@ -174,8 +283,9 @@ const eventsTimeline: EventItem[] = [
     time: "सायं. ६ वा. २७ मि.",
     icon: "💍",
     borderColor: "border-maroon",
-    imagePlaceholder: "विवाह फोटो"
-  }
+    imagePlaceholder: "विवाह फोटो",
+    imageStr: weddingCeremony,
+  },
 ];
 
 // Single Event Card with Image and Animation
@@ -190,7 +300,7 @@ const EventCard = ({ event, index }: { event: EventItem; index: number }) => {
           setIsVisible(true);
         }
       },
-      { threshold: 0.3 }
+      { threshold: 0.3 },
     );
 
     if (cardRef.current) {
@@ -201,26 +311,36 @@ const EventCard = ({ event, index }: { event: EventItem; index: number }) => {
   }, []);
 
   return (
-    <div 
+    <div
       ref={cardRef}
       className={`flex flex-col items-center gap-4 w-full max-w-sm mx-auto transition-all duration-700 ${
-        isVisible 
-          ? 'opacity-100 translate-y-0' 
-          : 'opacity-0 translate-y-10'
+        isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
       }`}
       style={{ transitionDelay: `${index * 150}ms` }}
     >
       {/* Event Image Placeholder with hover animation */}
-      <div className={`w-full aspect-[4/3] bg-gradient-to-br from-gold/20 to-maroon/20 rounded-2xl flex flex-col items-center justify-center gap-2 border-2 border-dashed ${event.borderColor}/50 group hover:scale-105 transition-transform duration-300 cursor-pointer`}>
+      <img src={event.imageStr} alt="" 
+              className={`w-full aspect-[4/3] bg-gradient-to-br from-gold/20 to-maroon/20 rounded-2xl flex flex-col items-center justify-center gap-2 border-2 border-dashed ${event.borderColor}/50 group hover:scale-105 transition-transform duration-300 cursor-pointer`}
+              />
+      {/* <div
+        className={`w-full aspect-[4/3] bg-gradient-to-br from-gold/20 to-maroon/20 rounded-2xl flex flex-col items-center justify-center gap-2 border-2 border-dashed ${event.borderColor}/50 group hover:scale-105 transition-transform duration-300 cursor-pointer`}
+      >
         <Camera className="w-12 h-12 text-gold/50 group-hover:text-gold transition-colors duration-300 group-hover:scale-110" />
-        <span className="text-sm text-gold/60 group-hover:text-gold transition-colors duration-300">{event.imagePlaceholder}</span>
-      </div>
-      
+        <img src={event.imageStr} alt="" className="w-12 h-12 text-gold/50 group-hover:text-gold transition-colors duration-300 group-hover:scale-110" />
+        <span className="text-sm text-gold/60 group-hover:text-gold transition-colors duration-300">
+          {event.imagePlaceholder}
+        </span>
+      </div> */}
+
       {/* Event Details Card with bounce animation */}
-      <div className={`${event.borderColor} border-2 rounded-2xl bg-cream/95 shadow-lg p-4 w-full hover:shadow-xl transition-all duration-300 hover:-translate-y-1`}>
+      <div
+        className={`${event.borderColor} border-2 rounded-2xl bg-cream/95 shadow-lg p-4 w-full hover:shadow-xl transition-all duration-300 hover:-translate-y-1`}
+      >
         <div className="flex items-center gap-2 mb-2">
           <span className="text-2xl animate-bounce-subtle">{event.icon}</span>
-          <h4 className="text-lg md:text-xl font-bold text-maroon">{event.title}</h4>
+          <h4 className="text-lg md:text-xl font-bold text-maroon">
+            {event.title}
+          </h4>
         </div>
         <div className="space-y-1">
           <div className="flex items-center gap-2">
@@ -240,12 +360,15 @@ const EventCard = ({ event, index }: { event: EventItem; index: number }) => {
 // Our Moments Gallery Placeholder
 const OurMomentsGallery = () => {
   const placeholders = [
-    { id: 1, label: "आमचे क्षण" },
-    { id: 2, label: "आठवणी" },
-    { id: 3, label: "प्रेम" },
-    { id: 4, label: "सोबत" },
-    { id: 5, label: "हास्य" },
-    { id: 6, label: "आनंद" },
+    { id: 1, label: "आमचे क्षण", imageUrl: Pic1 },
+    { id: 2, label: "आठवणी", imageUrl: Pic2  },
+    { id: 3, label: "प्रेम", imageUrl: Pic3  },
+    { id: 4, label: "सोबत", imageUrl: Pic4  },
+    { id: 5, label: "हास्य", imageUrl: Pic5  },
+    { id: 6, label: "आनंद", imageUrl: Pic6  },
+
+    // { id: 7, label: "आनंद", imageUrl: Pic7  },
+    // { id: 8, label: "आनंद", imageUrl: Pic8  },
   ];
 
   return (
@@ -257,16 +380,15 @@ const OurMomentsGallery = () => {
       <p className="text-sm md:text-base text-muted-foreground">
         या प्रवासातील सुंदर क्षण
       </p>
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4 mt-4">
+      <div className="grid grid-cols-2 md:grid-cols-2 gap-3 md:gap-4 mt-4">
         {placeholders.map((item) => (
-          <div 
-            key={item.id} 
-            className="aspect-square bg-gradient-to-br from-gold/20 to-maroon/20 rounded-xl flex flex-col items-center justify-center gap-2 border-2 border-dashed border-gold/40 hover:border-gold/80 transition-all cursor-pointer group"
-          >
-            <Camera className="w-8 h-8 md:w-10 md:h-10 text-gold/50 group-hover:text-gold transition-colors" />
-            <span className="text-xs md:text-sm text-gold/60 group-hover:text-gold transition-colors">
-              {item.label}
-            </span>
+         
+         <div className="w-full h-[220px] rounded-xl overflow-hidden border-2 border-dashed border-gold/40 hover:border-gold/80 transition-all">
+            <img
+              src={item.imageUrl}
+              alt=""
+              className="w-full h-full object-cover"
+            />
           </div>
         ))}
       </div>
@@ -281,7 +403,7 @@ const OurMomentsGallery = () => {
 const BackgroundMusic = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
-  
+
   const toggleMusic = () => {
     if (audioRef.current) {
       if (isPlaying) {
@@ -299,11 +421,14 @@ const BackgroundMusic = () => {
     // Try to auto-play when component mounts
     const timer = setTimeout(() => {
       if (audioRef.current) {
-        audioRef.current.play().then(() => {
-          setIsPlaying(true);
-        }).catch(() => {
-          // Auto-play blocked, user needs to click
-        });
+        audioRef.current
+          .play()
+          .then(() => {
+            setIsPlaying(true);
+          })
+          .catch(() => {
+            // Auto-play blocked, user needs to click
+          });
       }
     }, 500);
     return () => clearTimeout(timer);
@@ -316,7 +441,7 @@ const BackgroundMusic = () => {
         ref={audioRef}
         loop
         preload="auto"
-        src="https://cdn.pixabay.com/audio/2022/10/25/audio_32de2f87fd.mp3"
+        src={backgroundSound}
       />
       <button
         onClick={toggleMusic}
@@ -336,7 +461,9 @@ const BackgroundMusic = () => {
 const Index = () => {
   const [showInvitation, setShowInvitation] = useState(false);
   const [activeSection, setActiveSection] = useState(0);
-  const [revealedSections, setRevealedSections] = useState<Set<number>>(new Set());
+  const [revealedSections, setRevealedSections] = useState<Set<number>>(
+    new Set(),
+  );
   const containerRef = useRef<HTMLDivElement>(null);
   const sectionsRef = useRef<(HTMLDivElement | null)[]>([]);
 
@@ -358,7 +485,11 @@ const Index = () => {
             <p className="text-xl md:text-3xl text-gold font-bold">
               ॥ श्री गणेशाय नमः ॥
             </p>
-            <img src={dividerImage} alt="" className="w-32 md:w-48 h-auto mx-auto opacity-60" />
+            <img
+              src={dividerImage}
+              alt=""
+              className="w-32 md:w-48 h-auto mx-auto opacity-60"
+            />
           </div>
         </div>
       ),
@@ -371,7 +502,9 @@ const Index = () => {
           <div className="flex flex-col items-center justify-center gap-6 md:gap-12">
             {/* Bride */}
             <div className="space-y-2 md:space-y-3 group">
-              <p className="text-sm md:text-lg text-gold tracking-wide">चि. सौ. का.</p>
+              <p className="text-sm md:text-lg text-gold tracking-wide">
+                चि. सौ. का.
+              </p>
               <h2 className="text-4xl md:text-6xl font-bold text-maroon group-hover:text-gold transition-colors duration-500">
                 उत्कर्षा
               </h2>
@@ -404,7 +537,11 @@ const Index = () => {
               </div>
             </div>
           </div>
-          <img src={dividerImage} alt="" className="w-48 md:w-64 h-auto mx-auto opacity-50 mt-2 md:mt-4" />
+          <img
+            src={dividerImage}
+            alt=""
+            className="w-48 md:w-64 h-auto mx-auto opacity-50 mt-2 md:mt-4"
+          />
         </div>
       ),
     },
@@ -417,11 +554,20 @@ const Index = () => {
           <h1 className="text-5xl md:text-8xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-maroon via-gold to-maroon animate-shimmer">
             शुभविवाह
           </h1>
-          <p className="text-2xl md:text-3xl text-saffron font-semibold">सोहळा</p>
+          <p className="text-2xl md:text-3xl text-saffron font-semibold">
+            सोहळा
+          </p>
           <div className="flex items-center justify-center gap-4 md:gap-6 mt-4 md:mt-6">
-            <span className="text-gold text-3xl md:text-4xl animate-spin-slow">卐</span>
+            <span className="text-gold text-3xl md:text-4xl animate-spin-slow">
+              卐
+            </span>
             <div className="w-12 md:w-16 h-0.5 bg-gradient-to-r from-transparent via-gold to-transparent" />
-            <span className="text-gold text-3xl md:text-4xl animate-spin-slow" style={{ animationDirection: 'reverse' }}>卐</span>
+            <span
+              className="text-gold text-3xl md:text-4xl animate-spin-slow"
+              style={{ animationDirection: "reverse" }}
+            >
+              卐
+            </span>
           </div>
         </div>
       ),
@@ -432,7 +578,9 @@ const Index = () => {
       revealStyle: "fade",
       content: (
         <div className="text-center space-y-4">
-          <h3 className="text-2xl md:text-3xl text-gold font-bold mb-6">शुभ कार्यक्रम</h3>
+          <h3 className="text-2xl md:text-3xl text-gold font-bold mb-6">
+            शुभ कार्यक्रम
+          </h3>
           <EventCard event={eventsTimeline[0]} index={0} />
         </div>
       ),
@@ -441,9 +589,7 @@ const Index = () => {
     {
       id: "event-haldi",
       revealStyle: "fade",
-      content: (
-        <EventCard event={eventsTimeline[1]} index={1} />
-      ),
+      content: <EventCard event={eventsTimeline[1]} index={1} />,
     },
     // Individual event sections - Wedding
     {
@@ -468,7 +614,9 @@ const Index = () => {
         <div className="text-center space-y-4 md:space-y-6">
           <div className="inline-flex items-center gap-2 bg-maroon/10 border-2 border-maroon rounded-2xl px-4 md:px-6 py-2 md:py-3">
             <MapPin className="w-5 h-5 md:w-6 md:h-6 text-maroon" />
-            <h3 className="text-xl md:text-2xl text-maroon font-bold">विवाह स्थळ</h3>
+            <h3 className="text-xl md:text-2xl text-maroon font-bold">
+              विवाह स्थळ
+            </h3>
           </div>
           <div className="space-y-2 md:space-y-3">
             <h4 className="text-2xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-gold via-saffron to-gold">
@@ -481,8 +629,10 @@ const Index = () => {
               सिन्नर, जि. नाशिक
             </p>
           </div>
-          <button 
-            onClick={() => window.open('https://maps.google.com/?q=Sinner+Nashik', '_blank')}
+          <button
+            onClick={() =>
+              window.open("https://maps.app.goo.gl/6zvnKw7mpCXdPGhJ8", "_blank")
+            }
             className="inline-flex items-center gap-2 bg-gradient-to-r from-maroon to-gold text-cream px-5 md:px-6 py-2.5 md:py-3 rounded-full font-semibold hover:scale-105 transition-transform shadow-lg text-sm md:text-base"
           >
             <MapPin className="w-4 h-4 md:w-5 md:h-5" />
@@ -497,7 +647,9 @@ const Index = () => {
       content: (
         <div className="text-center space-y-4 md:space-y-6">
           <div className="inline-block border-b-4 border-gold pb-2 mb-2 md:mb-4">
-            <h3 className="text-3xl md:text-4xl text-gold font-bold tracking-wide">निमंत्रक</h3>
+            <h3 className="text-3xl md:text-4xl text-gold font-bold tracking-wide">
+              निमंत्रक
+            </h3>
           </div>
           <div className="space-y-2 md:space-y-3 text-sm md:text-lg leading-relaxed px-2">
             <p>श्री. संजय परशराम एरंडे, श्री. बाळासाहेब परशराम एरंडे</p>
@@ -508,8 +660,14 @@ const Index = () => {
               समस्त एरंडे परिवार आणि आप्तेष्ट
             </p>
           </div>
-          <img src={dividerImage} alt="" className="w-32 md:w-48 h-auto mx-auto opacity-50 mt-4 md:mt-6" />
-          <p className="text-gold text-base md:text-lg mt-6 md:mt-8">🙏 आपल्या उपस्थितीची प्रतीक्षा 🙏</p>
+          <img
+            src={dividerImage}
+            alt=""
+            className="w-32 md:w-48 h-auto mx-auto opacity-50 mt-4 md:mt-6"
+          />
+          <p className="text-gold text-base md:text-lg mt-6 md:mt-8">
+            🙏 आपल्या उपस्थितीची प्रतीक्षा 🙏
+          </p>
         </div>
       ),
     },
@@ -543,13 +701,13 @@ const Index = () => {
 
         // Mark section as revealed once visible
         if (visibility > 0.3) {
-          setRevealedSections(prev => new Set([...prev, index]));
+          setRevealedSections((prev) => new Set([...prev, index]));
         }
 
         // Apply different reveal styles
         const revealStyle = sections[index].revealStyle || "fade";
         const opacity = Math.pow(visibility, 1.2);
-        
+
         let transform = "";
         switch (revealStyle) {
           case "scale":
@@ -573,7 +731,10 @@ const Index = () => {
         section.style.transform = transform;
 
         // Update active section
-        if (sectionCenter > windowHeight * 0.3 && sectionCenter < windowHeight * 0.7) {
+        if (
+          sectionCenter > windowHeight * 0.3 &&
+          sectionCenter < windowHeight * 0.7
+        ) {
           setActiveSection(index);
         }
       });
@@ -616,14 +777,17 @@ const Index = () => {
           <button
             key={section.id}
             onClick={() => {
-              sectionsRef.current[index]?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              sectionsRef.current[index]?.scrollIntoView({
+                behavior: "smooth",
+                block: "center",
+              });
             }}
             className={`w-2 h-2 md:w-3 md:h-3 rounded-full transition-all duration-500 border md:border-2 ${
               activeSection === index
                 ? "bg-gold border-gold scale-150 shadow-lg shadow-gold/50"
                 : revealedSections.has(index)
-                ? "bg-gold/50 border-gold/50"
-                : "bg-transparent border-gold/30"
+                  ? "bg-gold/50 border-gold/50"
+                  : "bg-transparent border-gold/30"
             }`}
             aria-label={`Go to section ${index + 1}`}
           />
@@ -648,7 +812,7 @@ const Index = () => {
               <div className="absolute top-0 right-0 w-10 h-10 md:w-16 md:h-16 border-t-2 md:border-t-4 border-r-2 md:border-r-4 border-gold/60 rounded-tr-2xl md:rounded-tr-3xl" />
               <div className="absolute bottom-0 left-0 w-10 h-10 md:w-16 md:h-16 border-b-2 md:border-b-4 border-l-2 md:border-l-4 border-gold/60 rounded-bl-2xl md:rounded-bl-3xl" />
               <div className="absolute bottom-0 right-0 w-10 h-10 md:w-16 md:h-16 border-b-2 md:border-b-4 border-r-2 md:border-r-4 border-gold/60 rounded-br-2xl md:rounded-br-3xl" />
-              
+
               {section.content}
             </div>
           </div>
@@ -656,9 +820,13 @@ const Index = () => {
       </div>
 
       {/* Scroll hint - only show initially */}
-      <div className={`fixed bottom-6 md:bottom-8 left-1/2 -translate-x-1/2 z-50 transition-opacity duration-500 ${activeSection > 0 ? 'opacity-0' : 'opacity-100'}`}>
+      <div
+        className={`fixed bottom-6 md:bottom-8 left-1/2 -translate-x-1/2 z-50 transition-opacity duration-500 ${activeSection > 0 ? "opacity-0" : "opacity-100"}`}
+      >
         <div className="flex flex-col items-center gap-2 text-gold/80 animate-bounce">
-          <span className="text-xs md:text-sm font-medium bg-cream/80 px-3 md:px-4 py-1 rounded-full">स्क्रोल करा ↓</span>
+          <span className="text-xs md:text-sm font-medium bg-cream/80 px-3 md:px-4 py-1 rounded-full">
+            स्क्रोल करा ↓
+          </span>
         </div>
       </div>
     </div>
